@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="post"
-            type="com.example.app_databinding_viewmodel.model.Post" />
+            name="vm"
+            type="com.study.app_databinding_retrofit.viewmodel.PostViewModel" />
     </data>
 
     <LinearLayout
@@ -20,27 +20,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:text="@{String.valueOf(post.id)}"/>
+            android:text="@{String.valueOf(vm.post.id)}"/>
 
         <TextView
             android:layout_margin="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:text="@{post.author}"/>
+            android:text="@{vm.post.author}"/>
 
         <TextView
             android:layout_margin="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:text="@{post.title}"/>
+            android:text="@{vm.post.title}"/>
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Click"
-            android:onClick="click"
+            android:text="隨機取得 Post 資料"
+            android:onClick="onClick"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+
     </LinearLayout>
 </layout>
