@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">app_transservice</string>
+    <string name="path">https://data.coa.gov.tw/Service/OpenData/TransService.aspx?UnitId=QcbUEzN6E6DL</string>
+</resources>
