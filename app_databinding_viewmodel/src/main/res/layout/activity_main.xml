@@ -6,7 +6,7 @@
     <data>
         <variable
             name="vm"
-            type="com.study.app_databinding_retrofit.viewmodel.PostViewModel" />
+            type="com.example.app_databinding_viewmodel.viewmodel.PostViewModel" />
     </data>
 
     <LinearLayout

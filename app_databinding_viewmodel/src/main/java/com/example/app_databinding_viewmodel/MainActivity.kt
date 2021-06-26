@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.app_databinding_viewmodel.databinding.ActivityMainBinding
 import com.example.app_databinding_viewmodel.viewmodel.PostViewModel
 
+
 class MainActivity : AppCompatActivity() {
     lateinit var viewModel: PostViewModel
 
