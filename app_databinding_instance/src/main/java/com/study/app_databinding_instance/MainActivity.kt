@@ -35,10 +35,10 @@ class MainActivity : AppCompatActivity() {
         recyclerView.addItemDecoration(divider)
 
         viewModel = ViewModelProvider(this).get(PostViewModel::class.java)
+
         viewModel.posts.observe(this) {
             recyclerView.adapter = PostAdapter(it, this)
         }
-        listItem()
     }
 
     fun onAddClick(view: View) {
