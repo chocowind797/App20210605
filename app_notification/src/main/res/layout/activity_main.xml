@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:hint="請輸入 title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     <EditText
         android:id="@+id/et_message"
@@ -21,7 +21,7 @@
         android:layout_below="@id/et_title"
         android:layout_margin="20dp"
         android:hint="請輸入 message"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     <Button
         android:id="@+id/btn_channel1"
@@ -29,9 +29,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/et_message"
         android:layout_margin="20dp"
+        android:onClick="sendByChannel1"
         android:text="Channel 1"
         android:textAllCaps="false"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     <Button
         android:id="@+id/btn_channel2"
@@ -40,8 +41,43 @@
         android:layout_below="@id/et_message"
         android:layout_margin="20dp"
         android:layout_toRightOf="@id/btn_channel1"
+        android:onClick="sendByChannel2"
         android:text="Channel 2"
         android:textAllCaps="false"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+    <Button
+        android:id="@+id/btn_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_channel1"
+        android:layout_margin="20dp"
+        android:onClick="deleteFromChannel1"
+        android:text="Delete"
+        android:textAllCaps="false"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+    <Button
+        android:id="@+id/btn_continue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/btn_delete"
+        android:layout_below="@id/btn_channel2"
+        android:layout_margin="20dp"
+        android:onClick="continueFromChannel2"
+        android:text="Continue"
+        android:textAllCaps="false"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+    <Button
+        android:id="@+id/btn_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_delete"
+        android:layout_margin="20dp"
+        android:onClick="updateFromChannel1"
+        android:text="Update"
+        android:textAllCaps="false"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
 </RelativeLayout>
