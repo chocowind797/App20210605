@@ -3,7 +3,6 @@ package com.study.app_ticket_firebase.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.study.app_ticket_firebase.R
 import com.study.app_ticket_firebase.models.Order
@@ -11,14 +10,12 @@ import kotlinx.android.synthetic.main.recyclerview_order_list.view.*
 
 class OrderListAdapter(val listener: OrderOnItemClickListener) :
     RecyclerView.Adapter<OrderListAdapter.MyViewHolder>() {
-    private var orderList: List<Order> = ArrayList()
-
-    fun setOrderList(orderList: List<Order>) {
-        this.orderList = orderList
-    }
+    var orderList: List<Order> = ArrayList()
+    var tag = ""
+    var reverse = 1
 
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val card = view.card_view
+        val key = view.tv_key
         val username = view.tv_username
         val allTickets = view.tv_allTickets
         val roundTrip = view.tv_roundTrip
@@ -26,6 +23,7 @@ class OrderListAdapter(val listener: OrderOnItemClickListener) :
         val total = view.tv_total
 
         fun bind(order: Order) {
+            key.text = order.key
             username.text = order.ticket.username
             allTickets.text = order.ticket.allTickets.toString()
             roundTrip.text = order.ticket.roundTrip.toString()

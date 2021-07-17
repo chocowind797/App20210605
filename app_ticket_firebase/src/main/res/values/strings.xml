@@ -28,6 +28,7 @@
 
     <!--    recyclerview_order_list    -->
     <string name="username">購買人</string>
+    <string name="submit_time">購買時間</string>
     <string name="all_ticket_amount">總張數</string>
     <string name="roundtrip_amount">來回</string>
     <string name="oneway_amount">單程</string>
