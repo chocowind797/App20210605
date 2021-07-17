@@ -21,6 +21,7 @@
             <option value="$PROJECT_DIR$/app_retrofit" />
             <option value="$PROJECT_DIR$/app_retrofit_animal" />
             <option value="$PROJECT_DIR$/app_retrofit_crud" />
+            <option value="$PROJECT_DIR$/app_ticket_firebase" />
             <option value="$PROJECT_DIR$/app_tictactoe_firebase" />
             <option value="$PROJECT_DIR$/app_transservice" />
           </set>

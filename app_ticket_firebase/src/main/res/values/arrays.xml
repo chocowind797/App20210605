@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="exception_message_array">
+        <item/>
+        <item>票數必須大於 0</item>
+        <item>剩餘票數不足</item>
+        <item>來回票數過多</item>
+    </string-array>
+</resources>
