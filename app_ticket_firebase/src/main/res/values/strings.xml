@@ -13,7 +13,7 @@
     <string name="buy_txt">購買</string>
 
     <string name="submit_info_txt">結帳資訊</string>
-    <string name="submit_detail_txt">總張數：%d\n來回票：%d\n單程票：%d\n總金額：$%d</string>
+    <string name="submit_detail_txt">總張數：%d\n來回票：%d\n單程票：%d\n總金額：$%,d</string>
     <string name="result_success_txt">購買成功！</string>
 
     <string name="default_1000">1000</string>
@@ -43,4 +43,14 @@
     <string name="cancel_message">是否要退票</string>
     <string name="cancel_yes">是</string>
     <string name="cancel_no">否</string>
+
+    <!--    activity_console    -->
+    <string name="activity_console_title_txt">雲端後台 - %s</string>
+    <string name="discount">折扣：</string>
+    <string name="amount">數量：</string>
+    <string name="price">價格：</string>
+    <string name="update">更新</string>
+    <string name="update_success">更新成功</string>
+    <string name="analytic_info">銷售統計</string>
+    <string name="analytic_detail">總賣票數: %d 張\n總單程票: %d 張\n總來回票: %d 張(%d 組)\n總銷售金額: $%,d 元</string>
 </resources>

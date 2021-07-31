@@ -33,7 +33,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class OrderListActivity : AppCompatActivity(), OrderListAdapter.OrderOnItemClickListener {
+class OrderListActivity : AppCompatActivity() {
     val database = Firebase.database
     var myRef = database.getReference("ticketsStock/transactions")
     var isUser: Boolean = false
@@ -58,7 +58,8 @@ class OrderListActivity : AppCompatActivity(), OrderListAdapter.OrderOnItemClick
             title = resources.getString(R.string.all_order_txt)
 
         recyclerView.apply {
-            orderListAdapter = OrderListAdapter(this@OrderListActivity)
+            orderListAdapter =
+                OrderListAdapter(if (!(username == "" || username == "null")) user_orderOnItemClickListener else admin_orderOnItemClickListener)
             layoutManager = LinearLayoutManager(context)
             adapter = orderListAdapter
         }
@@ -98,80 +99,201 @@ class OrderListActivity : AppCompatActivity(), OrderListAdapter.OrderOnItemClick
         })
     }
 
-    override fun onItemClickListener(order: Order) {
-        // 產生 Json
-        val orderJsonString = Gson().toJson(order)
+    private val user_orderOnItemClickListener = object : OrderListAdapter.OrderOnItemClickListener {
+        override fun onItemClickListener(order: Order) {
+            // 產生 Json
+            val orderJsonString = Gson().toJson(order)
 
-        // 產生 QR-Code
-        val writer = QRCodeWriter()
-        // 產生 bit 矩陣(編碼檔)
-        val bitMatrix = writer.encode(orderJsonString, BarcodeFormat.QR_CODE, 512, 512)
-        val width = bitMatrix.width
-        val height = bitMatrix.height
-        // 產生 bitmap 圖像空間
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
-        // 將 bitMatrix 注入 bitmap 空間
-        for (x in 0 until width)
-            for (y in 0 until height)
-            // 有資料填黑色, 無資料填白色
-                bitmap.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.WHITE)
-        // 在 view 中顯示 bitmap 圖像
-        val qrcodeImageView = ImageView(context)
-        qrcodeImageView.setImageBitmap(bitmap)
-        // 建立 AlertDialog 並顯示 bitmap 圖像
-        AlertDialog.Builder(context)
-            .setView(qrcodeImageView)
-            .create()
-            .show()
+            // 產生 QR-Code
+            val writer = QRCodeWriter()
+            // 產生 bit 矩陣(編碼檔)
+            val bitMatrix = writer.encode(orderJsonString, BarcodeFormat.QR_CODE, 512, 512)
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            // 產生 bitmap 圖像空間
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+            // 將 bitMatrix 注入 bitmap 空間
+            for (x in 0 until width)
+                for (y in 0 until height)
+                // 有資料填黑色, 無資料填白色
+                    bitmap.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.WHITE)
+            // 在 view 中顯示 bitmap 圖像
+            val qrcodeImageView = ImageView(context)
+            qrcodeImageView.setImageBitmap(bitmap)
+            // 建立 AlertDialog 並顯示 bitmap 圖像
+            AlertDialog.Builder(context)
+                .setView(qrcodeImageView)
+                .create()
+                .show()
+        }
+
+        override fun onItemLongClickListener(order: Order) {
+            AlertDialog.Builder(context)
+                .setTitle(R.string.cancel_title)
+                .setMessage("${order.key} 是否要退票")
+                .setNegativeButton(R.string.cancel_no, null)
+                .setPositiveButton(R.string.cancel_yes) { _, _ ->
+                    val ref = myRef.root.child("ticketsStock")
+                    ref.child("transactions").child(order.ticket.username)
+                        .child(order.key).removeValue()
+
+                    ref.child("totalAmount")
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val totalAmount = snapshot.value.toString().toInt()
+                                ref.child("totalAmount")
+                                    .setValue(totalAmount + order.ticket.allTickets)
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                            }
+                        })
+
+                    // 退票紀錄
+                    // firebase "transactions_refund"
+                    val path = "${order.ticket.username}/${order.key}"
+                    val orderJsonString = Gson().toJson(order)
+
+                    val ts =
+                        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                    ref.child("transactions_refund").child(path).child("refund_date")
+                        .setValue(ts)
+                    ref.child("transactions_refund").child(path).child("buy_date")
+                        .setValue(order.key)
+                    ref.child("transactions_refund").child(path).child("ticket").child("allTickets")
+                        .setValue(order.ticket.allTickets)
+                    ref.child("transactions_refund").child(path).child("ticket").child("oneWay")
+                        .setValue(order.ticket.oneWay)
+                    ref.child("transactions_refund").child(path).child("ticket").child("roundTrip")
+                        .setValue(order.ticket.roundTrip)
+                    ref.child("transactions_refund").child(path).child("ticket").child("total")
+                        .setValue(order.ticket.total)
+                    ref.child("transactions_refund").child(path).child("json")
+                        .setValue(orderJsonString.replace("\\", ""))
+                }
+                .create()
+                .show()
+        }
     }
 
-    override fun onItemLongClickListener(order: Order) {
-        AlertDialog.Builder(context)
-            .setTitle(R.string.cancel_title)
-            .setMessage("${order.key} 是否要退票")
-            .setNegativeButton(R.string.cancel_no, null)
-            .setPositiveButton(R.string.cancel_yes) { _, _ ->
-                val ref = myRef.root.child("ticketsStock")
-                ref.child("transactions").child(order.ticket.username)
-                    .child(order.key).removeValue()
+    private val admin_orderOnItemClickListener =
+        object : OrderListAdapter.OrderOnItemClickListener {
+            override fun onItemClickListener(order: Order) {
+                val result_text = Gson().toJson(order, Order::class.java)
+                val message = "購買時間:\t%s\n" +
+                        "購買人:\t%s\n" +
+                        "總票數:\t%d\n" +
+                        "單程票:\t%d\n" +
+                        "來回票:\t%d\n" +
+                        "總金額:\t%,d\n"
 
-                ref.child("totalAmount")
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            val totalAmount = snapshot.value.toString().toInt()
-                            ref.child("totalAmount").setValue(totalAmount + order.ticket.allTickets)
-                        }
+                AlertDialog.Builder(context)
+                    .setTitle("使用票券")
+                    .setMessage(
+                        String.format(
+                            message,
+                            order.key,
+                            order.ticket.username,
+                            order.ticket.allTickets,
+                            order.ticket.oneWay,
+                            order.ticket.roundTrip,
+                            order.ticket.total
+                        )
+                    )
+                    .setNegativeButton("取消", null)
+                    .setPositiveButton("使用") { _, _ ->
+                        // 取得該票路徑
+                        val path = "${order.ticket.username}/${order.key}"
+                        val ticket_path = "transactions/$path"
+                        // 刪除該票
+                        myRef.child(ticket_path).removeValue()
+                        // 建立 transactions_history
+                        val ts = SimpleDateFormat(
+                            "yyyy-MM-dd HH:mm:ss",
+                            Locale.getDefault()
+                        ).format(Date())
+                        myRef.child("transactions_history").child(path).child("use_date")
+                            .setValue(ts)
+                        myRef.child("transactions_history").child(path).child("buy_date")
+                            .setValue(order.key)
+                        myRef.child("transactions_history").child(path).child("ticket")
+                            .child("allTickets")
+                            .setValue(order.ticket.allTickets)
+                        myRef.child("transactions_history").child(path).child("ticket")
+                            .child("oneWay")
+                            .setValue(order.ticket.oneWay)
+                        myRef.child("transactions_history").child(path).child("ticket")
+                            .child("roundTrip")
+                            .setValue(order.ticket.roundTrip)
+                        myRef.child("transactions_history").child(path).child("ticket")
+                            .child("total")
+                            .setValue(order.ticket.total)
+                        myRef.child("transactions_history").child(path).child("json")
+                            .setValue(result_text.replace("\\", ""))
 
-                        override fun onCancelled(error: DatabaseError) {
-                        }
-                    })
-
-                // 退票紀錄
-                // firebase "transaction_refund"
-                val date =
-                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS", Locale.getDefault()).format(Date())
-                val orderJsonString = Gson().toJson(order)
-                ref.child("transaction_refund/$date/order/json")
-                    .setValue(orderJsonString.replace("\\", ""))
-                ref.child("transaction_refund/$date/order/key").setValue(order.key)
-                ref.child("transaction_refund/$date/order/ticket/userName")
-                    .setValue(order.ticket.username)
-                ref.child("transaction_refund/$date/order/ticket/allTickets")
-                    .setValue(order.ticket.allTickets)
-                ref.child("transaction_refund/$date/order/ticket/roundTrip")
-                    .setValue(order.ticket.roundTrip)
-                ref.child("transaction_refund/$date/order/ticket/oneWay")
-                    .setValue(order.ticket.oneWay)
-                ref.child("transaction_refund/$date/order/ticket/total")
-                    .setValue(order.ticket.total)
-
+                        Toast.makeText(context, "已使用 ${order.key}", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .create()
+                    .show()
             }
-            .create()
-            .show()
-    }
+
+            override fun onItemLongClickListener(order: Order) {
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.cancel_title)
+                    .setMessage("${order.key} 是否要退票")
+                    .setNegativeButton(R.string.cancel_no, null)
+                    .setPositiveButton(R.string.cancel_yes) { _, _ ->
+                        val ref = myRef.root.child("ticketsStock")
+                        ref.child("transactions").child(order.ticket.username)
+                            .child(order.key).removeValue()
+
+                        ref.child("totalAmount")
+                            .addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    val totalAmount = snapshot.value.toString().toInt()
+                                    ref.child("totalAmount")
+                                        .setValue(totalAmount + order.ticket.allTickets)
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {
+                                }
+                            })
+
+                        // 退票紀錄
+                        // firebase "transactions_refund"
+                        val path = "${order.ticket.username}/${order.key}"
+                        val orderJsonString = Gson().toJson(order)
+
+                        val ts =
+                            SimpleDateFormat(
+                                "yyyy-MM-dd HH:mm:ss",
+                                Locale.getDefault()
+                            ).format(Date())
+                        ref.child("transactions_refund").child(path).child("refund_date")
+                            .setValue(ts)
+                        ref.child("transactions_refund").child(path).child("buy_date")
+                            .setValue(order.key)
+                        ref.child("transactions_refund").child(path).child("ticket")
+                            .child("allTickets")
+                            .setValue(order.ticket.allTickets)
+                        ref.child("transactions_refund").child(path).child("ticket").child("oneWay")
+                            .setValue(order.ticket.oneWay)
+                        ref.child("transactions_refund").child(path).child("ticket")
+                            .child("roundTrip")
+                            .setValue(order.ticket.roundTrip)
+                        ref.child("transactions_refund").child(path).child("ticket").child("total")
+                            .setValue(order.ticket.total)
+                        ref.child("transactions_refund").child(path).child("json")
+                            .setValue(orderJsonString.replace("\\", ""))
+                    }
+                    .create()
+                    .show()
+            }
+        }
 
     fun sort(view: View) {
-        var symbol = "▲"
+        var symbol = "▼"
         clearTitle()
 
         if (view.tag == orderListAdapter.tag) {

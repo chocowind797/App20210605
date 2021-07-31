@@ -210,6 +210,11 @@
             android:gravity="center"
             android:padding="20dp"/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black"/>
+
         <TextView
             android:id="@+id/tv_result"
             android:layout_width="match_parent"

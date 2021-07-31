@@ -1,0 +1,30 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+
+            var data = google.visualization.arrayToDataTable([
+                ['Submit', 'amount persent'],
+                %s
+            ]);
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+            var options = {
+                title: "銷售統計圖",
+                chartArea:{left:0, top:0, width:"100%%", height:"100%%"}
+            }
+
+            chart.draw(data, options);
+      }
+
+    </script>
+</head>
+<body style="padding: 1px;">
+<div id="piechart" style="width: 362px; height: 362px;"></div>
+</body>
+</html>
